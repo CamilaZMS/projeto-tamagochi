@@ -12,9 +12,10 @@ const createTamagochi = (name: string, imageUri: string): Tamagochi => {
     id: uuidv4(),
     name,
     imageUri,
-    fun: 100,
-    sleep: 100,
-    hunger: 100,
+    fun: 70,
+    sleep: 70,
+    sleepStatus: {},
+    hunger: 70,
     status: TamagochiStatus.VERY_GOOD,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -101,12 +102,17 @@ const deleteTamagochi = (id: string): void => {
   tamagochiStorageService.setTamagochis(filteredTamagochis);
 };
 
+const deleteAllTamagochis = (): void => {
+  tamagochiStorageService.setTamagochis([]);
+};
+
 export const tamagochiService = {
   getTamagochi,
   getTamagochis,
   createTamagochi,
   updateTamagochi,
   deleteTamagochi,
+  deleteAllTamagochis,
   refreshAllTamagochis,
   refreshTamagochiStatus,
 };
