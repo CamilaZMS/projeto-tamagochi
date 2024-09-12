@@ -7,9 +7,11 @@ export const tamagochiStorageService = {
     return value || [];
   },
 
-  setTamagochis: async (tamagochis: Tamagochi[]) => {
+  setTamagochis: (tamagochis: Tamagochi[]) => {
     storage.set(storageKeys.TAMAGOCHI_KEY, tamagochis);
   },
+
+
 
   addTamagochi: (tamagochi: Tamagochi) => {
     const tamagochis = tamagochiStorageService.getTamagochis();
@@ -18,13 +20,8 @@ export const tamagochiStorageService = {
   },
 
   getTamagochiById: (id: string): Tamagochi | undefined => {
-    try {
-      const tamagochis = tamagochiStorageService.getTamagochis();
-      return tamagochis.find((tamagochi) => tamagochi.id === id);
-    } catch (error) {
-      console.error("Erro ao buscar Tamagochi por ID: ", error);
-      return undefined;
-    }
+    const tamagochis = tamagochiStorageService.getTamagochis();
+    return tamagochis.find((tamagochi) => tamagochi.id === id);
   },
 };
 

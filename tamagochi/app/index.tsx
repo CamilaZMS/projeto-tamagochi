@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { colors } from "../constants/theme";
 import { Tamagochi } from "@/types/tamagochi";
 import { convertToProgress, getStatusIcon } from "@/utils/tamagochi";
@@ -122,9 +122,28 @@ const TamagochiListScreen = () => {
     }
   }, []);
 
+
+  const deleteAllTamagochis = useCallback(async () => {
+    try {
+      setLoading(true);
+      await tamagochiService.deleteAllTamagochis();
+      setTamagochiList([]);
+    } catch (error) {
+      console.error("Erro ao deletar todos os Tamagochis: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
   useEffect(() => {
     fetchTamagochis();
   }, [fetchTamagochis]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTamagochis();
+    }, [fetchTamagochis])
+  );
 
   if (loading) {
     return (

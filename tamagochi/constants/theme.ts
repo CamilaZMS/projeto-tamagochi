@@ -9,4 +9,5 @@ export const colors = {
   softGray: "#e0e0e0",
   gray: "#f2f2f2",
   white: "#ffffff",
+  disabled: "#828282",
 };

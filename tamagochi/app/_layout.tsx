@@ -17,6 +17,19 @@ export default function RootLayout() {
           title: "Detalhes",
         }}
       />
+      <Stack.Screen
+        name="memory-game"
+        options={{
+          title: "Voltar",
+        }}
+      />
+      <Stack.Screen
+        name="rock-paper-scissor-game"
+        options={{
+          title: "Voltar",
+        }}
+      />
     </Stack>
+    
   );
 }

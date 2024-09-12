@@ -14,6 +14,11 @@ export type Tamagochi = {
   imageUri: string;
   fun: number;
   sleep: number;
+  sleepStatus: {
+    sleepStartTime?: Date;
+    sleepDuration?: number;
+    sleepEndTime?: Date;
+  };
   hunger: number;
   status: TamagochiStatus;
   updatedAt: Date;
