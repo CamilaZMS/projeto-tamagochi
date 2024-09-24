@@ -37,7 +37,7 @@ const MemoryGame = () => {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [tamagochi, setTamagochi] = useState<Tamagochi | undefined>(undefined);
 
-  const handleGameFinished = useCallback(() => {
+  const handleGameFinished = useCallback(async () => {
     try {
       if (!tamagochi) return;
 
@@ -57,7 +57,7 @@ const MemoryGame = () => {
         status: updatedStatus,
       };
 
-      tamagochiService.updateTamagochi(updatedTamagochi);
+      await tamagochiService.updateTamagochi(updatedTamagochi);
 
       router.back();
     } catch (error) {
@@ -92,9 +92,11 @@ const MemoryGame = () => {
     [cards]
   );
 
-  const fetchTamagochi = useCallback(() => {
+  const fetchTamagochi = useCallback(async () => {
     try {
-      const fetchedTamagochi = tamagochiService.getTamagochi(id as string);
+      const fetchedTamagochi = await tamagochiService.getTamagochi(
+        id as string
+      );
       setTamagochi(fetchedTamagochi);
     } catch (error) {
       console.error("Erro ao buscar Tamagochi: ", error);

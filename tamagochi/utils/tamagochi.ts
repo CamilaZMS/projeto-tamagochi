@@ -1,4 +1,4 @@
-import { Tamagochi, TamagochiStatus } from "@/types/tamagochi";
+import { TamagochiStatus } from "@/types/tamagochi";
 
 export const setTamagochiStatus = (status: number): TamagochiStatus => {
   if (status <= 0) return TamagochiStatus.DEAD;

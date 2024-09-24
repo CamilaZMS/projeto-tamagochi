@@ -1,4 +1,4 @@
-package com.anonymous.tamagochi
+package com.anonymous.tamagochirefactor
 
 import android.os.Build
 import android.os.Bundle

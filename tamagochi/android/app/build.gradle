@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.tamagochi'
+    namespace 'com.anonymous.tamagochirefactor'
     defaultConfig {
-        applicationId 'com.anonymous.tamagochi'
+        applicationId 'com.anonymous.tamagochirefactor'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

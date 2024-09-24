@@ -1,4 +1,4 @@
-package com.anonymous.tamagochi
+package com.anonymous.tamagochirefactor
 
 import android.app.Application
 import android.content.res.Configuration
