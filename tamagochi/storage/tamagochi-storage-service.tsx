@@ -2,25 +2,23 @@ import { Tamagochi } from "@/types/tamagochi";
 import { storage, storageKeys } from "./index";
 
 export const tamagochiStorageService = {
-  getTamagochis: (): Tamagochi[] => {
-    const value = storage.get<Tamagochi[]>(storageKeys.TAMAGOCHI_KEY);
+  getTamagochis: async (): Promise<Tamagochi[]> => {
+    const value = await storage.get<Tamagochi[]>(storageKeys.TAMAGOCHI_KEY);
     return value || [];
   },
 
-  setTamagochis: (tamagochis: Tamagochi[]) => {
-    storage.set(storageKeys.TAMAGOCHI_KEY, tamagochis);
+  setTamagochis: async (tamagochis: Tamagochi[]): Promise<void> => {
+    await storage.set(storageKeys.TAMAGOCHI_KEY, tamagochis);
   },
 
-
-
-  addTamagochi: (tamagochi: Tamagochi) => {
-    const tamagochis = tamagochiStorageService.getTamagochis();
+  addTamagochi: async (tamagochi: Tamagochi): Promise<void> => {
+    const tamagochis = await tamagochiStorageService.getTamagochis();
     tamagochis.push(tamagochi);
-    tamagochiStorageService.setTamagochis(tamagochis);
+    await tamagochiStorageService.setTamagochis(tamagochis);
   },
 
-  getTamagochiById: (id: string): Tamagochi | undefined => {
-    const tamagochis = tamagochiStorageService.getTamagochis();
+  getTamagochiById: async (id: string): Promise<Tamagochi | undefined> => {
+    const tamagochis = await tamagochiStorageService.getTamagochis();
     return tamagochis.find((tamagochi) => tamagochi.id === id);
   },
 };

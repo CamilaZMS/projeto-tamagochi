@@ -35,7 +35,7 @@ const RockPaperScissors = () => {
   const [result, setResult] = useState<string | null>(null);
   const [tamagochi, setTamagochi] = useState<Tamagochi | undefined>(undefined);
 
-  const handleGameFinished = useCallback(() => {
+  const handleGameFinished = useCallback(async () => {
     try {
       if (!tamagochi) return;
 
@@ -55,7 +55,7 @@ const RockPaperScissors = () => {
         status: updatedStatus,
       };
 
-      tamagochiService.updateTamagochi(updatedTamagochi);
+      await tamagochiService.updateTamagochi(updatedTamagochi);
 
       router.back();
     } catch (error) {
@@ -66,16 +66,19 @@ const RockPaperScissors = () => {
   const handlePlayerChoice = useCallback((choice: string) => {
     setPlayerChoice(choice);
 
-    const randomChoice = choices[Math.floor(Math.random() * choices.length)].name;
+    const randomChoice =
+      choices[Math.floor(Math.random() * choices.length)].name;
     setTamagochiChoice(randomChoice);
 
     const gameResult = getGameResult(choice, randomChoice);
     setResult(gameResult);
   }, []);
 
-  const fetchTamagochi = useCallback(() => {
+  const fetchTamagochi = useCallback(async () => {
     try {
-      const fetchedTamagochi = tamagochiService.getTamagochi(id as string);
+      const fetchedTamagochi = await tamagochiService.getTamagochi(
+        id as string
+      );
       setTamagochi(fetchedTamagochi);
     } catch (error) {
       console.error("Erro ao buscar Tamagochi: ", error);
@@ -105,7 +108,11 @@ const RockPaperScissors = () => {
             style={styles.choiceButton}
             onPress={() => handlePlayerChoice(choice.name)}
           >
-            <FontAwesome name={choice.icon as keyof typeof FontAwesome.glyphMap} size={50} color={colors.white} />
+            <FontAwesome
+              name={choice.icon as keyof typeof FontAwesome.glyphMap}
+              size={50}
+              color={colors.white}
+            />
             <Text style={styles.choiceText}>{choice.name}</Text>
           </Pressable>
         ))}
@@ -113,9 +120,7 @@ const RockPaperScissors = () => {
 
       {playerChoice && tamagotchiChoice && (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>
-            Você escolheu: {playerChoice}
-          </Text>
+          <Text style={styles.resultText}>Você escolheu: {playerChoice}</Text>
           <Text style={styles.resultText}>
             Tamagotchi escolheu: {tamagotchiChoice}
           </Text>

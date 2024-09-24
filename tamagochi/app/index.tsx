@@ -9,10 +9,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { colors } from "../constants/theme";
+
 import { Tamagochi } from "@/types/tamagochi";
 import { convertToProgress, getStatusIcon } from "@/utils/tamagochi";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { colors } from "@/constants/theme";
 import { tamagochiService } from "@/services/tamagochi-service";
 
 const EmptyTamagochiList = () => (
@@ -23,7 +24,9 @@ const EmptyTamagochiList = () => (
 
 const TamagochiListScreen = () => {
   const router = useRouter();
-  const [tamagochiList, setTamagochiList] = useState<Tamagochi[]>([]);
+  const [tamagochiList, setTamagochiList] = useState<Tamagochi[]>(
+    [] as Tamagochi[]
+  );
   const [loading, setLoading] = useState(true);
 
   const renderItem = useCallback(
@@ -110,10 +113,10 @@ const TamagochiListScreen = () => {
     [router]
   );
 
-  const fetchTamagochis = useCallback(() => {
+  const fetchTamagochis = useCallback(async () => {
     try {
       setLoading(true);
-      const tamagochis = tamagochiService.getTamagochis();
+      const tamagochis = await tamagochiService.getTamagochis();
       setTamagochiList(tamagochis);
     } catch (error) {
       console.error("Erro ao buscar Tamagochis: ", error);
@@ -121,7 +124,6 @@ const TamagochiListScreen = () => {
       setLoading(false);
     }
   }, []);
-
 
   const deleteAllTamagochis = useCallback(async () => {
     try {
@@ -134,7 +136,7 @@ const TamagochiListScreen = () => {
       setLoading(false);
     }
   }, []);
-  
+
   useEffect(() => {
     fetchTamagochis();
   }, [fetchTamagochis]);

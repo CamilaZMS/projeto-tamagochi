@@ -44,10 +44,10 @@ const RegisterTamagochiScreen = () => {
     );
   };
 
-  const handleCreateTamagochi = useCallback(() => {
+  const handleCreateTamagochi = useCallback(async () => {
     try {
       buttonAnimated();
-      tamagochiService.createTamagochi(name, imageUri);
+      await tamagochiService.createTamagochi(name, imageUri);
       resetStates();
       router.push("/");
     } catch (error) {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orange,
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
     fontWeight: "bold",
     color: colors.darkGray,

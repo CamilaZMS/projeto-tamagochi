@@ -6,10 +6,8 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
-  Modal,
-  Button,
 } from "react-native";
-import { Tamagochi } from "@/types/tamagochi";
+import { Tamagochi, TamagochiStatus } from "@/types/tamagochi";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
@@ -38,13 +36,16 @@ const TamagochiDetailsScreen = () => {
   const [isSleeping, setIsSleeping] = useState(false);
   const [sleepTimeLeft, setSleepTimeLeft] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const disabled = isSleeping || tamagochi?.status === TamagochiStatus.DEAD;
 
-  const handleTamagochiWokeUp = useCallback(() => {
+  const handleTamagochiWokeUp = useCallback(async () => {
     try {
       setIsSleeping(false);
       setSleepTimeLeft(0);
 
-      const fetchedTamagochi = tamagochiService.getTamagochi(id as string);
+      const fetchedTamagochi = await tamagochiService.getTamagochi(
+        id as string
+      );
       if (!fetchedTamagochi) return;
 
       const updatedSleep = Math.min(fetchedTamagochi.sleep + 10, 100);
@@ -62,8 +63,9 @@ const TamagochiDetailsScreen = () => {
         status: updatedStatus,
       };
 
-      const currentTamagochi =
-        tamagochiService.updateTamagochi(updatedTamagochi);
+      const currentTamagochi = await tamagochiService.updateTamagochi(
+        updatedTamagochi
+      );
       setTamagochi(currentTamagochi);
     } catch (error) {
       console.error("Erro ao acordar Tamagochi: ", error);
@@ -114,10 +116,12 @@ const TamagochiDetailsScreen = () => {
     }
   }
 
-  const fetchTamagochi = useCallback(() => {
+  const fetchTamagochi = useCallback(async () => {
     try {
       if (!id) return;
-      const fetchedTamagochi = tamagochiService.getTamagochi(id as string);
+      const fetchedTamagochi = await tamagochiService.getTamagochi(
+        id as string
+      );
       if (!fetchedTamagochi) return;
 
       const { fun, sleep, hunger, sleepStatus } = fetchedTamagochi;
@@ -144,19 +148,6 @@ const TamagochiDetailsScreen = () => {
     }
   }, [id, startSleepTimer, handleTamagochiWokeUp]);
 
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const handleDeleteTamagochi = useCallback(() => {
-    try {
-      if (!id) return;
-      tamagochiService.deleteTamagochi(id as string); // Deletar o Tamagochi
-      router.back(); // Voltar para a tela anterior
-    } catch (error) {
-      console.error("Erro ao deletar o Tamagochi: ", error);
-    }
-  }, [id]);
-
   useEffect(() => {
     fetchTamagochi();
   }, [fetchTamagochi]);
@@ -173,7 +164,7 @@ const TamagochiDetailsScreen = () => {
     }, [fetchTamagochi])
   );
 
-  const handleFoodIconPress = useCallback(() => {
+  const handleFoodIconPress = useCallback(async () => {
     try {
       if (!tamagochi) return;
 
@@ -192,8 +183,9 @@ const TamagochiDetailsScreen = () => {
         hunger: updatedHunger,
         status: updatedStatus,
       };
-      const currentTamagochi =
-        tamagochiService.updateTamagochi(updatedTamagochi);
+      const currentTamagochi = await tamagochiService.updateTamagochi(
+        updatedTamagochi
+      );
 
       setTamagochi(currentTamagochi);
     } catch (error) {
@@ -201,7 +193,7 @@ const TamagochiDetailsScreen = () => {
     }
   }, [tamagochi]);
 
-  const handleSleepIconPress = useCallback(() => {
+  const handleSleepIconPress = useCallback(async () => {
     if (!tamagochi) return;
 
     const sleepStartTime = new Date();
@@ -218,7 +210,7 @@ const TamagochiDetailsScreen = () => {
       },
     };
 
-    tamagochiService.updateTamagochi(updatedTamagochi);
+    await tamagochiService.updateTamagochi(updatedTamagochi);
     startSleepTimer(sleepDuration / 1000);
   }, [tamagochi, isSleeping, startSleepTimer]);
 
@@ -228,6 +220,10 @@ const TamagochiDetailsScreen = () => {
 
   const handleRockPaperScissorIconPress = useCallback(() => {
     router.push(`./rock-paper-scissor-game?id=${id}`);
+  }, []);
+
+  const handleAnotherGameIconPress = useCallback(() => {
+    router.push(`./another-game?id=${id}`);
   }, []);
 
   const formatTime = (time: number) => {
@@ -251,21 +247,28 @@ const TamagochiDetailsScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.tamagotchiFrame}>
-        <View style={styles.imageContainer}>       
+        <View style={styles.imageContainer}>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/confirm-delete",
+                params: { id: tamagochi.id, tamagochiName: tamagochi.name },
+              })
+            }
+            style={[
+              styles.iconContainer,
+              styles.deleteButton,
+              styles.floatingButton,
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="delete"
+              size={24}
+              color={colors.white}
+            />
+          </Pressable>
 
-        
-        <Pressable
-          onPress={() => router.push({
-            pathname: '/confirm-delete',
-            params: { id: tamagochi.id, tamagochiName: tamagochi.name },
-          })}
-          style={[styles.iconContainer, styles.deleteButton, styles.floatingButton]} // Adicionando o novo estilo
-        >
-          <MaterialCommunityIcons name="delete" size={24} color={colors.white} />
-        </Pressable>
-
-          
-          <Image source={{ uri: tamagochi.imageUri }} style={styles.image} /> 
+          <Image source={{ uri: tamagochi.imageUri }} style={styles.image} />
 
           <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
             {tamagochi.name}
@@ -305,7 +308,7 @@ const TamagochiDetailsScreen = () => {
                 name="bed"
                 size={24}
                 color={colors.blue}
-                disabled={isSleeping}
+                disabled={disabled}
               />
               <View style={styles.progressBar}>
                 <View
@@ -341,12 +344,12 @@ const TamagochiDetailsScreen = () => {
           <Pressable
             onPress={handleSleepIconPress}
             style={styles.iconContainer}
-            disabled={isSleeping}
+            disabled={disabled}
           >
             <MaterialCommunityIcons
               name="sleep"
               size={24}
-              color={isSleeping ? colors.blue : colors.green}
+              color={disabled ? colors.blue : colors.green}
             />
             {isSleeping ? (
               <Text style={styles.detailText}>
@@ -360,12 +363,12 @@ const TamagochiDetailsScreen = () => {
                 key={icon}
                 onPress={handleFoodIconPress}
                 style={styles.iconContainer}
-                disabled={isSleeping}
+                disabled={disabled}
               >
                 <MaterialCommunityIcons
                   name={icon}
                   size={24}
-                  color={isSleeping ? colors.disabled : colors.green}
+                  color={disabled ? colors.disabled : colors.green}
                 />
               </Pressable>
             ))}
@@ -373,19 +376,19 @@ const TamagochiDetailsScreen = () => {
           <View style={styles.iconRow}>
             <Pressable
               onPress={handleMemoryGameIconPress}
-              style={styles.memoryGameContainer}
-              disabled={isSleeping}
+              style={styles.gameContainer}
+              disabled={disabled}
             >
               <MaterialCommunityIcons
                 name="gamepad-variant"
                 size={24}
-                color={isSleeping ? colors.disabled : colors.green}
-                disabled={isSleeping}
+                color={disabled ? colors.disabled : colors.green}
+                disabled={disabled}
               />
               <Text
                 style={[
                   styles.iconText,
-                  { color: isSleeping ? colors.disabled : colors.green },
+                  { color: disabled ? colors.disabled : colors.green },
                 ]}
               >
                 Jogo da Memória
@@ -395,25 +398,44 @@ const TamagochiDetailsScreen = () => {
           <View style={styles.iconRow}>
             <Pressable
               onPress={handleRockPaperScissorIconPress}
-              style={styles.rockPaperScissorContainer}
-              disabled={isSleeping}
+              style={styles.gameContainer}
+              disabled={disabled}
             >
               <MaterialCommunityIcons
                 name="gamepad-variant"
                 size={24}
-                color={isSleeping ? colors.disabled : colors.green}
-                disabled={isSleeping}
+                color={disabled ? colors.disabled : colors.green}
+                disabled={disabled}
               />
               <Text
                 style={[
                   styles.iconText,
-                  { color: isSleeping ? colors.disabled : colors.green },
+                  { color: disabled ? colors.disabled : colors.green },
                 ]}
               >
                 Pedra, Papel, Tesoura
               </Text>
             </Pressable>
-
+            <Pressable
+              onPress={handleAnotherGameIconPress}
+              style={styles.gameContainer}
+              disabled={disabled}
+            >
+              <MaterialCommunityIcons
+                name="gamepad-variant"
+                size={24}
+                color={disabled ? colors.disabled : colors.green}
+                disabled={disabled}
+              />
+              <Text
+                style={[
+                  styles.iconText,
+                  { color: disabled ? colors.disabled : colors.green },
+                ]}
+              >
+                jogo novo
+              </Text>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -533,7 +555,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     fontWeight: "bold",
   },
-  memoryGameContainer: {
+  gameContainer: {
     alignItems: "center",
     justifyContent: "center",
     padding: 4,
@@ -542,24 +564,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.softGray,
     borderRadius: 8,
   },
-  rockPaperScissorContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 4,
-    margin: 2,
-    flexDirection: "row",
-    backgroundColor: colors.softGray,
-    borderRadius: 8,
-  },
+
   deleteButton: {
     backgroundColor: colors.red,
     padding: 12,
     borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   floatingButton: {
-    position: 'absolute', 
+    position: "absolute",
     bottom: 5,
     right: 5,
   },

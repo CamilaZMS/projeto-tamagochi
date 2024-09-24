@@ -1,13 +1,17 @@
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { Tamagochi, TamagochiStatus } from "@/types/tamagochi";
 import tamagochiStorageService from "@/storage/tamagochi-storage-service";
 
-const getTamagochis = (): Tamagochi[] => {
-  const tamagochis = tamagochiStorageService.getTamagochis();
+const getTamagochis = async (): Promise<Tamagochi[]> => {
+  const tamagochis = await tamagochiStorageService.getTamagochis();
   return refreshAllTamagochis(tamagochis);
 };
 
-const createTamagochi = (name: string, imageUri: string): Tamagochi => {
+const createTamagochi = async (
+  name: string,
+  imageUri: string
+): Promise<Tamagochi> => {
   const newTamagochi: Tamagochi = {
     id: uuidv4(),
     name,
@@ -21,16 +25,18 @@ const createTamagochi = (name: string, imageUri: string): Tamagochi => {
     updatedAt: new Date(),
   };
 
-  tamagochiStorageService.addTamagochi(newTamagochi);
+  await tamagochiStorageService.addTamagochi(newTamagochi);
   return newTamagochi;
 };
 
-const getTamagochi = (id: string): Tamagochi | undefined => {
-  return tamagochiStorageService.getTamagochiById(id);
+const getTamagochi = async (id: string): Promise<Tamagochi | undefined> => {
+  return await tamagochiStorageService.getTamagochiById(id);
 };
 
-const updateTamagochi = (tamagochiToUpdate: Tamagochi): Tamagochi => {
-  const tamagochis = tamagochiStorageService.getTamagochis();
+const updateTamagochi = async (
+  tamagochiToUpdate: Tamagochi
+): Promise<Tamagochi> => {
+  const tamagochis = await tamagochiStorageService.getTamagochis();
   const index = tamagochis.findIndex(
     (tamagochi) => tamagochi.id === tamagochiToUpdate.id
   );
@@ -45,12 +51,14 @@ const updateTamagochi = (tamagochiToUpdate: Tamagochi): Tamagochi => {
     updatedAt: new Date(),
   };
 
-  tamagochiStorageService.setTamagochis(tamagochis);
+  await tamagochiStorageService.setTamagochis(tamagochis);
   return tamagochis[index];
 };
 
-const refreshTamagochiStatus = (tamagochiId: string): Tamagochi | undefined => {
-  const tamagochi = tamagochiStorageService.getTamagochiById(tamagochiId);
+const refreshTamagochiStatus = async (
+  tamagochiId: string
+): Promise<Tamagochi | undefined> => {
+  const tamagochi = await tamagochiStorageService.getTamagochiById(tamagochiId);
 
   if (!tamagochi) {
     return undefined;
@@ -81,29 +89,31 @@ const refreshTamagochiStatus = (tamagochiId: string): Tamagochi | undefined => {
     updatedAt: currentTime,
   };
 
-  tamagochiStorageService.setTamagochis(
-    tamagochiStorageService
-      .getTamagochis()
-      .map((t) => (t.id === tamagochiId ? updatedTamagochiData : t))
+  const allTamagochis = await tamagochiStorageService.getTamagochis();
+  await tamagochiStorageService.setTamagochis(
+    allTamagochis.map((t) => (t.id === tamagochiId ? updatedTamagochiData : t))
   );
 
   return updatedTamagochiData;
 };
 
-const refreshAllTamagochis = (tamagochis: Tamagochi[]): Tamagochi[] => {
-  return tamagochis
-    .map((tamagochi) => refreshTamagochiStatus(tamagochi.id!))
-    .filter((t): t is Tamagochi => t !== undefined);
+const refreshAllTamagochis = async (
+  tamagochis: Tamagochi[]
+): Promise<Tamagochi[]> => {
+  const refreshedTamagochis = await Promise.all(
+    tamagochis.map((tamagochi) => refreshTamagochiStatus(tamagochi.id!))
+  );
+  return refreshedTamagochis.filter((t): t is Tamagochi => t !== undefined);
 };
 
-const deleteTamagochi = (id: string): void => {
-  const tamagochis = tamagochiStorageService.getTamagochis();
+const deleteTamagochi = async (id: string): Promise<void> => {
+  const tamagochis = await tamagochiStorageService.getTamagochis();
   const filteredTamagochis = tamagochis.filter((t) => t.id !== id);
-  tamagochiStorageService.setTamagochis(filteredTamagochis);
+  await tamagochiStorageService.setTamagochis(filteredTamagochis);
 };
 
-const deleteAllTamagochis = (): void => {
-  tamagochiStorageService.setTamagochis([]);
+const deleteAllTamagochis = async (): Promise<void> => {
+  await tamagochiStorageService.setTamagochis([]);
 };
 
 export const tamagochiService = {
