@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'tamagochi-refactor'
+rootProject.name = 'tamagochi'
 
 dependencyResolutionManagement {
   versionCatalogs {

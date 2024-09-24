@@ -69,7 +69,7 @@ export default function AnotherGame() {
       }
     );
 
-    Accelerometer.setUpdateInterval(16); // Aproximadamente 60 fps
+    Accelerometer.setUpdateInterval(50); // Velocidade da bola, ~~ aproximadamente 60 fps
 
     return () => subscription && subscription.remove();
   }, []);
